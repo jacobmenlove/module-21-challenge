@@ -1,3 +1,63 @@
+def place_order(menu, predefined_inputs=None):
+    """
+    Displays a restaurant menu, asks customers for their order, then returns
+    their receipt and total price.
+
+    Parameters:
+    menu (dictionary): A nested dictionary containing the menu items and their 
+                       prices, using the following format:
+                        {
+                            "Food category": {
+                                "Meal": price
+                            }
+                        }
+
+    Returns:
+    order (list): A list of dictionaries containing the menu item name, price,
+                  and quantity ordered.
+    order_total (float): The total price of the order.
+    """
+    # Set up order list. Order list will store a list of dictionaries for
+    # menu item name, item price, and quantity ordered
+    order = []
+
+    # Get the menu items mapped to the menu numbers
+    menu_items = get_menu_items_dict(menu)
+
+    # Launch the store and present a greeting to the customer
+    print("Welcome to the Generic Take Out Restaurant.")
+
+    # Create a continuous while loop so customers can order multiple items
+    input_iterator = iter(predefined_inputs) if predefined_inputs else iter ([])
+    
+    while True:
+        print_menu_heading()
+        i = 1
+        
+        # Loop through the menu dictionary
+        for food_category, options in menu.items():
+            # Loop through the options for each food category
+            for meal, price in options.items():
+                # Print the menu item number, food category, meal, and price
+                print_menu_line(i, food_category, meal, price)
+                i += 1
+
+        # Ask customer to input menu item number
+        menu_selection = input("Please enter the number of the item you want to order: ")
+
+        # Update the order list using the update_order function
+        order = update_order(order, menu_selection, menu_items)
+
+        # Ask the customer if they would like to order anything else
+        continue_ordering = input("Would you like to order anything else? (y/n): ")
+        if continue_ordering.lower() == 'n':
+            print("Thank you for your order!")
+            # Use list comprehension to create a list of prices
+            prices_list = [item["Price"] * item["Quantity"] for item in order]
+            # Create an order_total from the prices list using sum()
+            order_total = round(sum(prices_list), 2)
+            return order, order_total
+
 def update_order(order, menu_selection, menu_items):
     """
     Checks if the customer menu selection is valid, then updates the order.
@@ -13,30 +73,23 @@ def update_order(order, menu_selection, menu_items):
     order (list): A list of dictionaries containing the menu item name, price,
                     and quantity ordered (updated as needed).
     """
-    # TODO: Check if the customer typed a number
-    if menu_selection.isdigit():  # Checks if input is a digit
-        # TODO: Convert the menu selection to an integer
+    # Check if the customer typed a number
+    if menu_selection.isdigit():
         menu_selection = int(menu_selection)
-        
-        # TODO: Check if the menu selection is in the menu items keys
+        # Check if the menu selection is in the menu items keys
         if menu_selection in menu_items:
-            # TODO: Store the item name as a variable
             item_name = menu_items[menu_selection]["Item name"]
             item_price = menu_items[menu_selection]["Price"]
-            
-            # TODO: Ask the customer for the quantity of the menu item
+            # Ask the customer for the quantity of the menu item
             quantity = input(f"How many of {item_name} would you like to order? ")
 
-            # TODO: Check if the quantity is a number, default to 1 if not
+            # Check if the quantity is a number, default to 1 if not
             if quantity.isdigit():
-                quantity = int(quantity)  # Convert to integer if it's a digit
+                quantity = int(quantity)
             else:
-                quantity = 1  # Default to 1 if not a valid number
+                quantity = 1
 
-            # TODO: Add a dictionary to the order list 
-            # TODO: The dictionary should include the item name, price, and quantity
-            # TODO: Use the following names for the dictionary keys:
-            # TODO: "Item name", "Price", "Quantity"
+            # Add a dictionary to the order list 
             order.append({
                 "Item name": item_name,
                 "Price": item_price,
@@ -44,17 +97,27 @@ def update_order(order, menu_selection, menu_items):
             })
             return order
         else:
-            # TODO: When the menu selection wasn't valid:
-            # TODO: Print the menu selection and 
-            # TODO: Tell the customer they didn't select a menu option
-            print(f"Menu selection '{menu_selection}' is not valid. Please select an available option.")
+            print("That menu selection is not valid.")
             return order
     else:
-        # TODO: When the user's input isn't valid, 
-        # TODO: tell the customer that their input isn't valid
         print("Please enter a valid menu item number.")
         return order
 
+def print_itemized_receipt(receipt):
+    """
+    Prints an itemized receipt for the customer.
+
+    Parameters:
+    receipt (list): A list of dictionaries containing the menu item name, price,
+                    and quantity ordered.
+    """
+    for item in receipt:
+        # Store the dictionary items as variables
+        item_name = item["Item name"]
+        price = item["Price"]
+        quantity = item["Quantity"]
+        # Print the receipt line using the print_receipt_line function
+        print_receipt_line(item_name, price, quantity)
 
 ##################################################
 #  STARTER CODE
